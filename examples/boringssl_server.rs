@@ -1,4 +1,4 @@
-//! Run with `cargo run --all-features --example rustls_server` command.
+//! Run with `cargo run --all-features --example boringssl_server` command.
 //!
 //! To connect through browser, navigate to "https://localhost:3000" url.
 
