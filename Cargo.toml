@@ -1,5 +1,5 @@
 [package]
-authors = ["Programatik <programatik29@gmail.com>"]
+authors = ["0x676e67 <gngppz@gmail.com>"]
 categories = ["asynchronous", "network-programming", "web-programming"]
 description = "High level server designed to be used with axum framework."
 edition = "2018"
