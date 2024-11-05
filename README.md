@@ -1,12 +1,14 @@
-[![License](https://img.shields.io/crates/l/axum-server)](https://choosealicense.com/licenses/mit/)
-[![Crates.io](https://img.shields.io/crates/v/axum-server)](https://crates.io/crates/axum-server)
-[![Docs](https://img.shields.io/crates/v/axum-server?color=blue&label=docs)](https://docs.rs/axum-server/)
+[![Crates.io License](https://img.shields.io/crates/l/server2)](./LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/axum-server2)](https://crates.io/crates/axum-server2)
+[![Docs](https://img.shields.io/crates/v/axum-server2?color=blue&label=docs)](https://docs.rs/axum-server2/)
 
-# axum-server
+# axum-server2
 
-axum-server is a [hyper] server implementation designed to be used with [axum] framework.
+axum-server2 is a [hyper] server implementation designed to be used with [axum] framework.
 
 This project is maintained by community independently from [axum].
+
+> This branch applies a patched version of [hyper](https://github.com/penumbra-x/hyper) [boringssl](https://github.com/penumbra-x/boring)
 
 ## Features
 
@@ -30,7 +32,7 @@ async fn main() {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("listening on {}", addr);
-    axum_server::bind(addr)
+    axum_server2::bind(addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
@@ -41,7 +43,7 @@ You can find more examples [here](/examples).
 
 ## Minimum Supported Rust Version
 
-axum-server's MSRV is `1.49`.
+axum-server2's MSRV is `1.49`.
 
 ## Safety
 
@@ -55,3 +57,7 @@ This project is licensed under the [MIT license](LICENSE).
 [hyper]: https://crates.io/crates/hyper
 [rustls]: https://crates.io/crates/rustls
 [tower]: https://crates.io/crates/tower
+
+## Accolades
+
+The project is based on a fork of [axum-server2](https://github.com/programatik29/axum-server2).

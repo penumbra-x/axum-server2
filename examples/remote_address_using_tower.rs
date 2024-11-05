@@ -16,7 +16,7 @@ async fn main() {
         Ok::<_, Infallible>(Response::new(body))
     });
 
-    axum_server::bind(SocketAddr::from(([127, 0, 0, 1], 3000)))
+    axum_server2::bind(SocketAddr::from(([127, 0, 0, 1], 3000)))
         .serve(service_fn(|addr: &AddrStream| {
             let addr = addr.remote_addr();
 
