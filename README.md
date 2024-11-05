@@ -1,4 +1,4 @@
-[![Crates.io License](https://img.shields.io/crates/l/axum-server2)](./LICENSE)
+[![Crates.io License](https://img.shields.io/crates/l/axum-server2)](https://github.com/penumbra-x/axum-server2/blob/v0.5.x/LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/axum-server2)](https://crates.io/crates/axum-server2)
 [![Docs](https://img.shields.io/crates/v/axum-server2?color=blue&label=docs)](https://docs.rs/axum-server2/)
 
@@ -8,7 +8,7 @@ axum-server2 is a [hyper] server implementation designed to be used with [axum] 
 
 This project is maintained by community independently from [axum].
 
-> This branch applies a patched version of [hyper](https://github.com/penumbra-x/hyper) and [boringssl](https://github.com/penumbra-x/boring)
+> This branch applies a patched version of [boringssl](https://github.com/penumbra-x/boring)
 
 ## Features
 

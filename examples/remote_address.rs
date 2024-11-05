@@ -11,9 +11,10 @@ async fn main() {
         .route("/", get(handler))
         .into_make_service_with_connect_info::<SocketAddr>();
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-
-    axum::Server::bind(&addr).serve(app).await.unwrap();
+    axum_server2::Server::bind(SocketAddr::from(([127, 0, 0, 1], 3000)))
+        .serve(app)
+        .await
+        .unwrap();
 }
 
 async fn handler(ConnectInfo(addr): ConnectInfo<SocketAddr>) -> String {
