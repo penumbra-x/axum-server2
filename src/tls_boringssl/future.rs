@@ -1,6 +1,7 @@
 //! Future types.
 
 use super::BoringSSLConfig;
+use futures_util::future::BoxFuture;
 use pin_project_lite::pin_project;
 use std::io::{Error, ErrorKind};
 use std::time::Duration;
@@ -65,7 +66,7 @@ pin_project! {
         // proceed to return the SslStream.
         TlsAccepting {
             #[pin]
-            future: Timeout<Pin<Box<dyn Future<Output = Result<SslStream<I>, HandshakeError<I>>> + Send + 'static>>>,
+            future: Timeout<BoxFuture<'static, Result<SslStream<I>, HandshakeError<I>>>>,
             service: Option<S>,
         }
     }
@@ -109,20 +110,16 @@ where
                                 return Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, e)))
                             }
                         };
-                        let tls_stream = SslStreamBuilder::new(ssl, stream);
-                        let accept_future: Pin<
-                            Box<
-                                dyn Future<Output = Result<SslStream<I>, HandshakeError<I>>>
-                                    + Send
-                                    + 'static,
-                            >,
-                        > = Box::pin(tls_stream.accept());
 
+                        let tls_builder = SslStreamBuilder::new(ssl, stream);
+                        let accept_future: BoxFuture<'_, Result<SslStream<I>, HandshakeError<I>>> =
+                            Box::pin(tls_builder.accept());
+
+                        let service = Some(service);
                         let handshake_timeout = *handshake_timeout;
-
                         this.inner.set(AcceptFuture::TlsAccepting {
                             future: timeout(handshake_timeout, accept_future),
-                            service: Some(service),
+                            service,
                         });
 
                         // the loop is now triggered to immediately poll on

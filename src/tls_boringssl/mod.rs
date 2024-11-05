@@ -4,7 +4,7 @@
 //!
 //! ```rust,no_run
 //! use axum::{routing::get, Router};
-//! use axum_server2::tls_openssl::OpenSSLConfig;
+//! use axum_server2::tls_boringssl::BoringSSLConfig;
 //! use std::net::SocketAddr;
 //!
 //! #[tokio::main]
@@ -31,7 +31,7 @@ use crate::{
     accept::{Accept, DefaultAcceptor},
     server::Server,
 };
-use boring::ssl::Error as BoringSSLError;
+use boring::ssl::{self, Error as BoringSSLError, SslOptions, SslVersion};
 use boring::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use std::{convert::TryFrom, fmt, net::SocketAddr, path::Path, sync::Arc, time::Duration};
 use tokio::io::{AsyncRead, AsyncWrite};
@@ -120,7 +120,7 @@ impl BoringSSLConfig {
         cert: A,
         key: B,
     ) -> Result<Self, BoringSSLError> {
-        let mut tls_builder = SslAcceptor::mozilla_intermediate_v5(SslMethod::tls())?;
+        let mut tls_builder = default_acceptor_builder()?;
 
         tls_builder.set_certificate_file(cert, SslFiletype::PEM)?;
 
@@ -139,7 +139,7 @@ impl BoringSSLConfig {
         chain: A,
         key: B,
     ) -> Result<Self, BoringSSLError> {
-        let mut tls_builder = SslAcceptor::mozilla_intermediate_v5(SslMethod::tls())?;
+        let mut tls_builder = default_acceptor_builder()?;
 
         tls_builder.set_certificate_chain_file(chain)?;
 
@@ -190,4 +190,16 @@ impl fmt::Debug for BoringSSLConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("BoringSSLConfig").finish()
     }
+}
+
+fn default_acceptor_builder() -> Result<SslAcceptorBuilder, BoringSSLError> {
+    let mut builder = SslAcceptor::mozilla_intermediate_v5(SslMethod::tls())?;
+    builder.set_alpn_select_callback(|_, client| {
+        ssl::select_next_proto(b"\x02h2\x08http/1.1", client).ok_or(ssl::AlpnError::ALERT_FATAL)
+    });
+    builder.set_options(SslOptions::ALL);
+    builder.set_min_proto_version(Some(SslVersion::TLS1))?;
+    builder.set_max_proto_version(Some(SslVersion::TLS1_3))?;
+    builder.set_permute_extensions(true);
+    Ok(builder)
 }
