@@ -3,10 +3,11 @@
 //! To connect through browser, navigate to "https://localhost:3000" url.
 
 use axum::{middleware::AddExtension, routing::get, Extension, Router};
-use axum_server::{
+use axum_server2::{
     accept::Accept,
     tls_rustls::{RustlsAcceptor, RustlsConfig},
 };
+
 use futures_util::future::BoxFuture;
 use std::{io, net::SocketAddr, sync::Arc};
 use tokio::io::{AsyncRead, AsyncWrite};
@@ -29,7 +30,7 @@ async fn main() {
     println!("listening on {}", addr);
 
     let acceptor = CustomAcceptor::new(RustlsAcceptor::new(config));
-    let server = axum_server::bind(addr).acceptor(acceptor);
+    let server = axum_server2::bind(addr).acceptor(acceptor);
 
     server.serve(app.into_make_service()).await.unwrap();
 }

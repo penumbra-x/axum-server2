@@ -1,6 +1,6 @@
 //! Future types.
 
-use super::OpenSSLConfig;
+use super::BoringSSLConfig;
 use pin_project_lite::pin_project;
 use std::io::{Error, ErrorKind};
 use std::time::Duration;
@@ -14,20 +14,20 @@ use std::{
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::time::{timeout, Timeout};
 
-use openssl::ssl::Ssl;
-use tokio_openssl::SslStream;
+use boring::ssl::Ssl;
+use tokio_boring::{HandshakeError, SslStream, SslStreamBuilder};
 
 pin_project! {
-    /// Future type for [`OpenSSLAcceptor`](crate::tls_openssl::OpenSSLAcceptor).
-    pub struct OpenSSLAcceptorFuture<F, I, S> {
+    /// Future type for [`BoringSSLSSLAcceptor`](crate::tls_boringssl::BoringSSSslAcceptor).
+    pub struct BoringSSLSSLAcceptorFuture<F, I, S> {
         #[pin]
         inner: AcceptFuture<F, I, S>,
-        config: Option<OpenSSLConfig>,
+        config: Option<BoringSSLConfig>,
     }
 }
 
-impl<F, I, S> OpenSSLAcceptorFuture<F, I, S> {
-    pub(crate) fn new(future: F, config: OpenSSLConfig, handshake_timeout: Duration) -> Self {
+impl<F, I, S> BoringSSLSSLAcceptorFuture<F, I, S> {
+    pub(crate) fn new(future: F, config: BoringSSLConfig, handshake_timeout: Duration) -> Self {
         let inner = AcceptFuture::InnerAccepting {
             future,
             handshake_timeout,
@@ -38,9 +38,9 @@ impl<F, I, S> OpenSSLAcceptorFuture<F, I, S> {
     }
 }
 
-impl<F, I, S> fmt::Debug for OpenSSLAcceptorFuture<F, I, S> {
+impl<F, I, S> fmt::Debug for BoringSSLSSLAcceptorFuture<F, I, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("OpenSSLAcceptorFuture").finish()
+        f.debug_struct("BoringSSLSSLAcceptorFuture").finish()
     }
 }
 
@@ -48,33 +48,6 @@ pin_project! {
     struct TlsAccept<I> {
         #[pin]
         tls_stream: Option<SslStream<I>>,
-    }
-}
-
-impl<I> Future for TlsAccept<I>
-where
-    I: AsyncRead + AsyncWrite + Unpin,
-{
-    type Output = io::Result<SslStream<I>>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let mut this = self.project();
-
-        match this
-            .tls_stream
-            .as_mut()
-            .as_pin_mut()
-            .map(|inner| inner.poll_accept(cx))
-            .expect("tlsaccept polled after ready")
-        {
-            Poll::Ready(Ok(())) => {
-                let tls_stream = this.tls_stream.take().expect("tls stream vanished?");
-
-                Poll::Ready(Ok(tls_stream))
-            }
-            Poll::Ready(Err(e)) => Poll::Ready(Err(Error::new(ErrorKind::Other, e))),
-            Poll::Pending => Poll::Pending,
-        }
     }
 }
 
@@ -92,16 +65,16 @@ pin_project! {
         // proceed to return the SslStream.
         TlsAccepting {
             #[pin]
-            future: Timeout< TlsAccept<I> >,
+            future: Timeout<Pin<Box<dyn Future<Output = Result<SslStream<I>, HandshakeError<I>>> + Send + 'static>>>,
             service: Option<S>,
         }
     }
 }
 
-impl<F, I, S> Future for OpenSSLAcceptorFuture<F, I, S>
+impl<F, I, S> Future for BoringSSLSSLAcceptorFuture<F, I, S>
 where
     F: Future<Output = io::Result<(I, S)>>,
-    I: AsyncRead + AsyncWrite + Unpin,
+    I: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
     type Output = io::Result<(SslStream<I>, S)>;
 
@@ -130,20 +103,28 @@ where
                         );
 
                         // Change to poll::ready(err)
-                        let ssl = Ssl::new(server_config.acceptor.context()).unwrap();
-
-                        let tls_stream = SslStream::new(ssl, stream).unwrap();
-                        let future = TlsAccept {
-                            tls_stream: Some(tls_stream),
+                        let ssl = match Ssl::new_from_ref(server_config.acceptor.context()) {
+                            Ok(ssl) => ssl,
+                            Err(e) => {
+                                return Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, e)))
+                            }
                         };
+                        let tls_stream = SslStreamBuilder::new(ssl, stream);
+                        let accept_future: Pin<
+                            Box<
+                                dyn Future<Output = Result<SslStream<I>, HandshakeError<I>>>
+                                    + Send
+                                    + 'static,
+                            >,
+                        > = Box::pin(tls_stream.accept());
 
-                        let service = Some(service);
                         let handshake_timeout = *handshake_timeout;
 
                         this.inner.set(AcceptFuture::TlsAccepting {
-                            future: timeout(handshake_timeout, future),
-                            service,
+                            future: timeout(handshake_timeout, accept_future),
+                            service: Some(service),
                         });
+
                         // the loop is now triggered to immediately poll on
                         // ssl stream accept.
                     }
@@ -154,10 +135,11 @@ where
                 AcceptFutureProj::TlsAccepting { future, service } => match future.poll(cx) {
                     Poll::Ready(Ok(Ok(stream))) => {
                         let service = service.take().expect("future polled after ready");
-
                         return Poll::Ready(Ok((stream, service)));
                     }
-                    Poll::Ready(Ok(Err(e))) => return Poll::Ready(Err(e)),
+                    Poll::Ready(Ok(Err(e))) => {
+                        return Poll::Ready(Err(io::Error::new(ErrorKind::Other, e.to_string())))
+                    }
                     Poll::Ready(Err(timeout)) => {
                         return Poll::Ready(Err(Error::new(ErrorKind::TimedOut, timeout)))
                     }
