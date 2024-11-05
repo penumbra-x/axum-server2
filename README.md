@@ -1,4 +1,4 @@
-[![Crates.io License](https://img.shields.io/crates/l/server2)](./LICENSE)
+[![Crates.io License](https://img.shields.io/crates/l/axum-server2)](./LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/axum-server2)](https://crates.io/crates/axum-server2)
 [![Docs](https://img.shields.io/crates/v/axum-server2?color=blue&label=docs)](https://docs.rs/axum-server2/)
 
