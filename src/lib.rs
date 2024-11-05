@@ -132,3 +132,11 @@ pub mod tls_boringssl;
 #[doc(inline)]
 #[cfg(feature = "tls-boringssl")]
 pub use self::tls_boringssl::bind_boringssl;
+
+#[doc(inline)]
+#[cfg(feature = "tls-boringssl")]
+pub use boring;
+
+#[doc(inline)]
+#[cfg(feature = "tls-boringssl")]
+pub use tokio_boring;
