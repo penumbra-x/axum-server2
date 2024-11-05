@@ -60,4 +60,4 @@ This project is licensed under the [MIT license](LICENSE).
 
 ## Accolades
 
-The project is based on a fork of [axum-server2](https://github.com/programatik29/axum-server2).
+The project is based on a fork of [axum-server2](https://github.com/programatik29/axum-server).
