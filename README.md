@@ -13,7 +13,7 @@ This project is maintained by community independently from [axum].
 ## Features
 
 - HTTP/1 and HTTP/2
-- HTTPS through [rustls].
+- HTTPS through [rustls]、[openssl]、[boringssl].
 - High performance through [hyper].
 - Using [tower] make service API.
 - Very good [axum] compatibility. Likely to work with future [axum] releases.
@@ -57,7 +57,9 @@ This project is licensed under the [MIT license](LICENSE).
 [hyper]: https://crates.io/crates/hyper
 [rustls]: https://crates.io/crates/rustls
 [tower]: https://crates.io/crates/tower
+[openssl]: https://crates.io/crates/openssl
+[boringssl]: https://crates.io/crates/rboring
 
 ## Accolades
 
-The project is based on a fork of [axum-server2](https://github.com/programatik29/axum-server).
+The project is based on a fork of [axum-server](https://github.com/programatik29/axum-server).
