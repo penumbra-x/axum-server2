@@ -8,10 +8,10 @@ license = "MIT"
 name = "axum-server2"
 readme = "README.md"
 repository = "https://github.com/penumbra-x/axum-server2"
-version = "0.5.2"
+version = "0.5.3"
 
 [features]
-default = ["tls-boringssl"]
+default = []
 tls-rustls = ["arc-swap", "pin-project-lite", "rustls", "rustls-pemfile", "tokio/fs", "tokio/time", "tokio-rustls"]
 tls-openssl = ["openssl", "tokio-openssl", "pin-project-lite"]
 tls-boringssl = ["boring", "tokio-boring", "pin-project-lite"]
