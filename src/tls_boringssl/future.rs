@@ -46,13 +46,6 @@ impl<F, I, S> fmt::Debug for BoringSSLSSLAcceptorFuture<F, I, S> {
 }
 
 pin_project! {
-    struct TlsAccept<I> {
-        #[pin]
-        tls_stream: Option<SslStream<I>>,
-    }
-}
-
-pin_project! {
     #[project = AcceptFutureProj]
     enum AcceptFuture<F, I, S> {
         // We are waiting on the inner (lower) future to complete accept()
