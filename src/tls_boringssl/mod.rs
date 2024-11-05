@@ -31,7 +31,8 @@ use crate::{
     accept::{Accept, DefaultAcceptor},
     server::Server,
 };
-use boring::ssl::{self, Error as BoringSSLError, SslOptions, SslVersion};
+pub use boring::ssl::Error as BoringSSLError;
+use boring::ssl::{self, SslOptions, SslVersion};
 use boring::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use std::{convert::TryFrom, fmt, net::SocketAddr, path::Path, sync::Arc, time::Duration};
 use tokio::io::{AsyncRead, AsyncWrite};
