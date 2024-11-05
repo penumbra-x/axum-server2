@@ -8,7 +8,7 @@ license = "MIT"
 name = "axum-server2"
 readme = "README.md"
 repository = "https://github.com/penumbra-x/axum-server2"
-version = "0.5.1"
+version = "0.5.2"
 
 [features]
 default = []
@@ -76,4 +76,9 @@ doc-scrape-examples = true
 [[example]]
 name = "rustls_session"
 required-features = ["tls-rustls"]
+doc-scrape-examples = true
+
+[[example]]
+name = "boringssl_server"
+required-features = ["tls-boringssl"]
 doc-scrape-examples = true
