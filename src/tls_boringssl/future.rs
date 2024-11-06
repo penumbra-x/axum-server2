@@ -20,14 +20,14 @@ use tokio_boring::{HandshakeError, SslStream, SslStreamBuilder};
 
 pin_project! {
     /// Future type for [`BoringSSLSSLAcceptor`](crate::tls_boringssl::BoringSSSslAcceptor).
-    pub struct BoringSSLSSLAcceptorFuture<F, I, S> {
+    pub struct BoringSSLAcceptorFuture<F, I, S> {
         #[pin]
         inner: AcceptFuture<F, I, S>,
         config: Option<BoringSSLConfig>,
     }
 }
 
-impl<F, I, S> BoringSSLSSLAcceptorFuture<F, I, S> {
+impl<F, I, S> BoringSSLAcceptorFuture<F, I, S> {
     pub(crate) fn new(future: F, config: BoringSSLConfig, handshake_timeout: Duration) -> Self {
         let inner = AcceptFuture::InnerAccepting {
             future,
@@ -39,7 +39,7 @@ impl<F, I, S> BoringSSLSSLAcceptorFuture<F, I, S> {
     }
 }
 
-impl<F, I, S> fmt::Debug for BoringSSLSSLAcceptorFuture<F, I, S> {
+impl<F, I, S> fmt::Debug for BoringSSLAcceptorFuture<F, I, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("BoringSSLSSLAcceptorFuture").finish()
     }
@@ -65,7 +65,7 @@ pin_project! {
     }
 }
 
-impl<F, I, S> Future for BoringSSLSSLAcceptorFuture<F, I, S>
+impl<F, I, S> Future for BoringSSLAcceptorFuture<F, I, S>
 where
     F: Future<Output = io::Result<(I, S)>>,
     I: AsyncRead + AsyncWrite + Unpin + Send + 'static,

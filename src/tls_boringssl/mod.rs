@@ -26,7 +26,7 @@
 //! }
 //! ```
 
-use self::future::BoringSSLSSLAcceptorFuture;
+use self::future::BoringSSLAcceptorFuture;
 use crate::{
     accept::{Accept, DefaultAcceptor},
     server::Server,
@@ -92,13 +92,13 @@ where
 {
     type Stream = SslStream<A::Stream>;
     type Service = A::Service;
-    type Future = BoringSSLSSLAcceptorFuture<A::Future, A::Stream, A::Service>;
+    type Future = BoringSSLAcceptorFuture<A::Future, A::Stream, A::Service>;
 
     fn accept(&self, stream: I, service: S) -> Self::Future {
         let inner_future = self.inner.accept(stream, service);
         let config = self.config.clone();
 
-        BoringSSLSSLAcceptorFuture::new(inner_future, config, self.handshake_timeout)
+        BoringSSLAcceptorFuture::new(inner_future, config, self.handshake_timeout)
     }
 }
 
