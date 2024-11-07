@@ -41,14 +41,14 @@ use tokio_boring::SslStream;
 pub mod future;
 
 /// Create a TLS server that will be bound to the provided socket with a configuration. See
-/// the [`crate::tls_openssl`] module for more details.
+/// the [`crate::tls_boringssl`] module for more details.
 pub fn bind_boringssl(addr: SocketAddr, config: BoringSSLConfig) -> Server<BoringSSLAcceptor> {
     let acceptor = BoringSSLAcceptor::new(config);
 
     Server::bind(addr).acceptor(acceptor)
 }
 
-/// Tls acceptor that uses OpenSSL. For details on how to use this see [`crate::tls_openssl`] module
+/// Tls acceptor that uses BoringSSL. For details on how to use this see [`crate::tls_boringssl`] module
 /// for more details.
 #[derive(Clone)]
 pub struct BoringSSLAcceptor<A = DefaultAcceptor> {
@@ -58,8 +58,8 @@ pub struct BoringSSLAcceptor<A = DefaultAcceptor> {
 }
 
 impl BoringSSLAcceptor {
-    /// Create a new OpenSSL acceptor based on the provided [`OpenSSLConfig`]. This is
-    /// generally used with manual calls to [`Server::bind`]. You may want [`bind_openssl`]
+    /// Create a new BoringSSL acceptor based on the provided [`BoringSSLConfig`]. This is
+    /// generally used with manual calls to [`Server::bind`]. You may want [`bind_boringssl`]
     /// instead.
     pub fn new(config: BoringSSLConfig) -> Self {
         let inner = DefaultAcceptor::new();
