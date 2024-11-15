@@ -38,8 +38,8 @@ openssl = { version = "0.10", optional = true }
 tokio-openssl = { version = "0.6", optional = true }
 
 ## boringssl
-boring = { package = "rboring", version = "4", optional = true }
-tokio-boring = { package = "tokio-rboring", version = "4", optional = true }
+boring = { package = "boring2", version = "4", optional = true }
+tokio-boring = { package = "tokio-boring2", version = "4", optional = true }
 
 [dev-dependencies]
 axum = "0.6"
