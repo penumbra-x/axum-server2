@@ -8,7 +8,7 @@ axum-server2 is a [hyper] server implementation designed to be used with [axum] 
 
 This project is maintained by community independently from [axum].
 
-> This branch applies a patched version of [boringssl](https://github.com/penumbra-x/boring)
+> This branch applies a patched version of [boringssl](https://github.com/penumbra-x/boring2)
 
 ## Features
 
